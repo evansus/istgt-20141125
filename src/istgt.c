@@ -1552,27 +1552,6 @@ istgt_init(ISTGT_Ptr istgt)
 		    istgt->discovery_auth_group);
 	}
 
-	rc = istgt_uctl_init(istgt);
-	if (rc < 0) {
-		ISTGT_ERRLOG("istgt_uctl_init() failed\n");
-		return -1;
-	}
-	rc = istgt_build_uctl_portal(istgt);
-	if (rc < 0) {
-		ISTGT_ERRLOG("istgt_build_uctl_portal() failed\n");
-		return -1;
-	}
-	rc = istgt_build_portal_group_array(istgt);
-	if (rc < 0) {
-		ISTGT_ERRLOG("istgt_build_portal_array() failed\n");
-		return -1;
-	}
-	rc = istgt_build_initiator_group_array(istgt);
-	if (rc < 0) {
-		ISTGT_ERRLOG("build_initiator_group_array() failed\n");
-		return -1;
-	}
-
 	rc = pthread_attr_init(&istgt->attr);
 	if (rc != 0) {
 		ISTGT_ERRLOG("pthread_attr_init() failed\n");
@@ -1626,6 +1605,28 @@ istgt_init(ISTGT_Ptr istgt)
 	rc = pthread_cond_init(&istgt->reload_cond, NULL);
 	if (rc != 0) {
 		ISTGT_ERRLOG("cond_init() failed\n");
+		return -1;
+	}
+
+	/* Moved below pthread mutex initialization to prevent use before init */
+	rc = istgt_uctl_init(istgt);
+	if (rc < 0) {
+		ISTGT_ERRLOG("istgt_uctl_init() failed\n");
+		return -1;
+	}
+	rc = istgt_build_uctl_portal(istgt);
+	if (rc < 0) {
+		ISTGT_ERRLOG("istgt_build_uctl_portal() failed\n");
+		return -1;
+	}
+	rc = istgt_build_portal_group_array(istgt);
+	if (rc < 0) {
+		ISTGT_ERRLOG("istgt_build_portal_array() failed\n");
+		return -1;
+	}
+	rc = istgt_build_initiator_group_array(istgt);
+	if (rc < 0) {
+		ISTGT_ERRLOG("build_initiator_group_array() failed\n");
 		return -1;
 	}
 
